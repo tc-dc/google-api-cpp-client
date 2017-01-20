@@ -226,16 +226,14 @@ class CurlProcessor {
       LOG_FIRST_N(WARNING, 1)
           << "Disabling SSL_VERIFYPEER.";
       curl_easy_setopt(curl_, CURLOPT_SSL_VERIFYPEER, false);
-    } else if (cacerts_path.empty()) {
-      const char error[] = "Transport options have no caccerts_path.";
-      LOG(ERROR) << error;
-      return StatusInternalError(error);
-    } else if (curl_easy_setopt(curl_, CURLOPT_CAINFO, cacerts_path.c_str())) {
-      string error = StrCat("Error setting certs from ", cacerts_path);
-      LOG(ERROR) << error;
-      return StatusInvalidArgument(error);
-    } else {
-      LOG_FIRST_N(INFO, 1) << "Using cacerts from " << cacerts_path;
+    } else if (!cacerts_path.empty()) {
+      if (curl_easy_setopt(curl_, CURLOPT_CAINFO, cacerts_path.c_str())) {
+        string error = StrCat("Error setting certs from ", cacerts_path);
+        LOG(ERROR) << error;
+        return StatusInvalidArgument(error);
+      } else {
+        LOG_FIRST_N(INFO, 1) << "Using cacerts from " << cacerts_path;
+      }
     }
 
     // nosignals because we are multithreaded
