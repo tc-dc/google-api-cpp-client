@@ -178,6 +178,7 @@ bool HttpTransportErrorHandler::HandleHttpError(
           VLOG(2) << "Refreshed credential";
           status = credential->AuthorizeRequest(request);
           if (status.ok()) {
+            request->response()->body_writer()->Clear();
             VLOG(1) << "Re-authorized credential";
             return true;
           } else {
